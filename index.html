@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ivan@farewell:~$</title>
+  <link rel="stylesheet" href="https://unpkg.com/xterm/css/xterm.css" />
+  <style>
+    body {
+      background-color: #0c0c0c;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #terminal {
+      width: 90%;
+      height: 90%;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 25px #00ff88;
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal"></div>
+
+  <script src="https://unpkg.com/xterm/lib/xterm.js"></script>
+  <script>
+    const term = new Terminal({
+      cursorBlink: true,
+      fontFamily: 'monospace',
+      fontSize: 16,
+      theme: {
+        background: '#0c0c0c',
+        foreground: '#00ff88'
+      }
+    });
+
+    term.open(document.getElementById('terminal'));
+
+    const logo = `
+  _                      ____          _                                                                  _      
+ (_)_   ____ _ _ __     / __ \  __   _(_)___ _ __ ___   __ _    ___        ___ ___  _ __   ___  _ __ ___ (_) ___ 
+ | \ \ / / _` | '_ \   / / _` | \ \ / / / __| '_ ` _ \ / _` |  / _ \_____ / __/ _ \| '_ \ / _ \| '_ ` _ \| |/ __|
+ | |\ V / (_| | | | | | | (_| |  \ V /| \__ \ | | | | | (_| | |  __/_____| (_| (_) | | | | (_) | | | | | | | (__ 
+ |_| \_/ \__,_|_| |_|  \ \__,_|   \_/ |_|___/_| |_| |_|\__,_|  \___|      \___\___/|_| |_|\___/|_| |_| |_|_|\___|
+                        \____/                                                                                   
+`;
+
+    const farewellMsg = [
+      '',
+      '> cat career.log',
+      '2021: Joined as a consultant. Bright-eyed. Curious.',
+      '2022: Debugged the un-debuggable.',
+      '2023: Secured the unsecurable.',
+      '2024: Mentored, built, broke cool stuff.',
+      '2025: Mission complete. 4+ years. Time to log off.',
+      '',
+      '> ./goodbye.sh',
+    ];
+
+    async function bootSequence() {
+      term.writeln('Booting IvanOS v1.0...');
+      await delay(1000);
+      term.writeln('Loading modules [██████████] 100%');
+      await delay(1000);
+      term.writeln('Initializing farewell protocol...');
+      await delay(1200);
+      term.writeln('');
+      printLogo();
+      await delay(1000);
+      for (const line of farewellMsg) {
+        term.writeln(line);
+        await delay(300);
+      }
+      await delay(800);
+      term.writeln('Saving memories...');
+      await delay(1000);
+      term.writeln('Memories saved.');
+      await delay(500);
+      term.writeln('');
+      term.writeln('> Type "help" for available commands.');
+      term.write('\r\n> ');
+    }
+
+    function printLogo() {
+      logo.split('\n').forEach(line => term.writeln(line));
+      term.writeln('');
+      term.writeln('Welcome to Ivan\'s Farewell Terminal');
+      term.writeln('------------------------------------------\n');
+    }
+
+    function delay(ms) {
+      return new Promise(res => setTimeout(res, ms));
+    }
+
+    let input = '';
+    let secretUnlocked = false;
+
+    term.onData(e => {
+      if (e === '\r') {
+        handleCommand(input.trim());
+        input = '';
+      } else if (e.charCodeAt(0) === 127) {
+        if (input.length > 0) {
+          input = input.slice(0, -1);
+          term.write('\b \b');
+        }
+      } else {
+        input += e;
+        term.write(e);
+      }
+    });
+
+    async function handleCommand(cmd) {
+      term.writeln('');
+      switch (cmd) {
+        case 'help':
+          term.writeln('Available commands:');
+          term.writeln('  help         Show this help');
+          term.writeln('  whoami       Show your name');
+          term.writeln('  projects     List key projects');
+          term.writeln('  exit         Reload the terminal');
+          term.writeln('  sudo su      ???');
+          break;
+
+        case 'whoami':
+          term.writeln('Ivan Sedlak — Senior IAM Engineer, Bug Slayer, Builder of Cool Things.');
+          break;
+
+        case 'projects':
+          term.writeln('- Identity Server');
+          term.writeln('- Async Helper');
+          term.writeln('- BAv2 IS Tests');
+          term.writeln('- CVR Validation Module');
+          term.writeln('- OpenFGA Baby Steps');
+          break;
+
+        case 'sudo su':
+          if (!secretUnlocked) {
+            secretUnlocked = true;
+            await triggerEasterEgg();
+          } else {
+            term.writeln('Access already granted.');
+          }
+          break;
+
+        case 'exit':
+          term.writeln('Logging off...');
+          await delay(1500);
+          location.reload();
+          break;
+
+        default:
+          term.writeln(`Command not found: ${cmd}`);
+      }
+      term.write('\r\n> ');
+    }
+
+    async function triggerEasterEgg() {
+      term.writeln('[sudo] password for ivan: ********');
+      await delay(1000);
+      term.writeln('Access granted. Welcome, root.');
+      await delay(800);
+      term.writeln('Decrypting farewell secrets...');
+      await delay(1500);
+      term.writeln('');
+      term.writeln('Hidden Message:');
+      term.writeln('“The strongest security comes from good people —');
+      term.writeln(' and good memories are the best encryption.”');
+      await delay(800);
+      term.writeln('');
+      term.writeln('> You have unlocked "Easter Egg: Legacy Access"');
+    }
+
+    bootSequence();
+  </script>
+</body>
+</html>
