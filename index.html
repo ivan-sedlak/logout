@@ -30,7 +30,7 @@
       touch-action: manipulation;
     }
 
-    /* Tablet adjustments */
+    /* For tablets */
     @media (max-width: 768px) {
       #terminal {
         width: 95vw;
@@ -39,7 +39,7 @@
       }
     }
 
-    /* Small phone adjustments */
+    /* For small phones */
     @media (max-width: 480px) {
       #terminal {
         width: 100vw;
@@ -67,26 +67,23 @@
 
     term.open(document.getElementById('terminal'));
 
-    // Allow tap/click to focus terminal
-    const terminalDiv = document.getElementById('terminal');
-    terminalDiv.addEventListener('touchstart', () => term.focus());
-    terminalDiv.addEventListener('mousedown', () => term.focus());
+    // Focus terminal when user taps/clicks anywhere
+    document.getElementById('terminal').addEventListener('touchstart', () => term.focus());
+    document.getElementById('terminal').addEventListener('mousedown', () => term.focus());
 
-    // Adjust font size and logo dynamically on resize
+    // Adjust font size dynamically based on screen width
     window.addEventListener('resize', () => {
       term.options.fontSize = getResponsiveFontSize();
-      adjustLogoScale();
     });
 
     function getResponsiveFontSize() {
       const width = window.innerWidth;
-      if (width < 480) return 11;
-      if (width < 768) return 13;
-      return 16;
+      if (width < 480) return 11;   // small phone
+      if (width < 768) return 13;   // tablet
+      return 16;                    // desktop
     }
 
-    // ASCII logo
-    let logo = `
+    const logo = `
                                                 
  ▝                               ▝              
 ▗▄  ▗ ▗  ▄▖ ▗▗▖      ▞▜▖    ▗ ▗ ▗▄   ▄▖ ▗▄▄  ▄▖ 
@@ -104,19 +101,6 @@
                                                 
                                                 
 `;
-
-    // Adjust logo width to fit small screens
-    function adjustLogoScale() {
-      if (window.innerWidth < 480) {
-        // compress by removing extra spaces between blocks
-        scaledLogo = logo.replace(/ {2}/g, ' ');
-      } else if (window.innerWidth < 768) {
-        scaledLogo = logo.replace(/ {2}/g, ' ');
-      } else {
-        scaledLogo = logo;
-      }
-      return scaledLogo;
-    }
 
     const farewellMsg = [
       '',
@@ -156,10 +140,9 @@
     }
 
     function printLogo() {
-      const scaledLogo = adjustLogoScale();
-      scaledLogo.split('\n').forEach(line => term.writeln(line));
+      logo.split('\n').forEach(line => term.writeln(line));
       term.writeln('');
-      term.writeln("Welcome to Ivan's Farewell Terminal");
+      term.writeln('Welcome to Ivan\'s Farewell Terminal');
       term.writeln('------------------------------------------\n');
     }
 
