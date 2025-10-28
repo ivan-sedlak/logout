@@ -6,20 +6,47 @@
   <title>ivan@farewell:~$</title>
   <link rel="stylesheet" href="https://unpkg.com/xterm/css/xterm.css" />
   <style>
-    body {
-      background-color: #0c0c0c;
+    html, body {
       margin: 0;
-      height: 100vh;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background-color: #0c0c0c;
       display: flex;
       justify-content: center;
       align-items: center;
+      overflow: hidden;
+      font-family: monospace;
+      -webkit-tap-highlight-color: transparent;
     }
+
     #terminal {
-      width: 90%;
-      height: 90%;
+      width: 90vw;
+      height: 85vh;
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 0 25px #00ff88;
+      transition: all 0.3s ease-in-out;
+      touch-action: manipulation;
+    }
+
+    /* Tablet adjustments */
+    @media (max-width: 768px) {
+      #terminal {
+        width: 95vw;
+        height: 80vh;
+        box-shadow: 0 0 15px #00ff88;
+      }
+    }
+
+    /* Small phone adjustments */
+    @media (max-width: 480px) {
+      #terminal {
+        width: 100vw;
+        height: 90vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
     }
   </style>
 </head>
@@ -31,7 +58,7 @@
     const term = new Terminal({
       cursorBlink: true,
       fontFamily: 'monospace',
-      fontSize: 16,
+      fontSize: getResponsiveFontSize(),
       theme: {
         background: '#0c0c0c',
         foreground: '#00ff88'
@@ -40,7 +67,26 @@
 
     term.open(document.getElementById('terminal'));
 
-    const logo = `
+    // Allow tap/click to focus terminal
+    const terminalDiv = document.getElementById('terminal');
+    terminalDiv.addEventListener('touchstart', () => term.focus());
+    terminalDiv.addEventListener('mousedown', () => term.focus());
+
+    // Adjust font size and logo dynamically on resize
+    window.addEventListener('resize', () => {
+      term.options.fontSize = getResponsiveFontSize();
+      adjustLogoScale();
+    });
+
+    function getResponsiveFontSize() {
+      const width = window.innerWidth;
+      if (width < 480) return 11;
+      if (width < 768) return 13;
+      return 16;
+    }
+
+    // ASCII logo
+    let logo = `
                                                 
  ▝                               ▝              
 ▗▄  ▗ ▗  ▄▖ ▗▗▖      ▞▜▖    ▗ ▗ ▗▄   ▄▖ ▗▄▄  ▄▖ 
@@ -58,6 +104,19 @@
                                                 
                                                 
 `;
+
+    // Adjust logo width to fit small screens
+    function adjustLogoScale() {
+      if (window.innerWidth < 480) {
+        // compress by removing extra spaces between blocks
+        scaledLogo = logo.replace(/ {2}/g, ' ');
+      } else if (window.innerWidth < 768) {
+        scaledLogo = logo.replace(/ {2}/g, ' ');
+      } else {
+        scaledLogo = logo;
+      }
+      return scaledLogo;
+    }
 
     const farewellMsg = [
       '',
@@ -93,12 +152,14 @@
       term.writeln('');
       term.writeln('> Type "help" for available commands.');
       term.write('\r\n> ');
+      term.focus();
     }
 
     function printLogo() {
-      logo.split('\n').forEach(line => term.writeln(line));
+      const scaledLogo = adjustLogoScale();
+      scaledLogo.split('\n').forEach(line => term.writeln(line));
       term.writeln('');
-      term.writeln('Welcome to Ivan\'s Farewell Terminal');
+      term.writeln("Welcome to Ivan's Farewell Terminal");
       term.writeln('------------------------------------------\n');
     }
 
